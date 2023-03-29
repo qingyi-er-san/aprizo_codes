@@ -54,32 +54,194 @@ return {
             e(c).html(y),
             k()
         }), 
+Node 接口
+1.属性
+1.1 Node.prototype.nodeType
+        document.nodeType // 9
+        文档节点的类型值为9.
+        Node对象中定义了几个常量，对应这些类型值：
 
-严格模式：
+        文档节点（document）：9，对应常量Node.DOCUMENT_NODE
+        元素节点（element）：1，对应常量Node.ELEMENT_NODE
+        属性节点（attr）：2，对应常量Node.ATTRIBUTE_NODE
+        文本节点（text）：3，对应常量Node.TEXT_NODE
+        文档片断节点（DocumentFragment）：11，对应常量Node.DOCUMENT_FRAGMENT_NODE
+        文档类型节点（DocumentType）：10，对应常量Node.DOCUMENT_TYPE_NODE
+        注释节点（Comment）：8，对应常量Node.COMMENT_NODE
+
+        确定节点类型，使用nodeType属性是常用方法
+
+        var node = document.documentElement.firstChild;
+        if( node.nodeType === Node.ELEMENT_NODE){
+            console.log('element node')
+        }
+1.2 Node.prototype.nodeName
+        该属性返回节点的名称
+1.3 Node.prototype.nodeValue
+        该属性返回一个字符串，表示当前节点本身的文本值，该属性值可读写。
+        只有文本节点，注释节点，和属性节点有文本值，只有这三类节点nodeValue可以返回结果，其他类型的节点一律返回null。
+        也只有这三种节点可以设置nodeValue属性值。
+1.4 Node.prototype.textContent
+        返回当前节点和它所有后代节点的文本内容。自动忽略节点内部的HTML标签，返回所有文本内容。
+1.5 Node.prototype.nextSibling 
+        返回当前节点后面的第一个同级节点，如果没有同级节点则返回null。
+1.6 Node.prototype.previousSibling 
+        返回当前节点前面的第一个同级节点。
+1.7 Node.prototype.parentNode
+        返回父节点。
+
+
+
+
+
+
+DOM概述
+1.DOM
+    Document Object Model, 将网页转为一个JS对象，也就是HTML中元素，属性等都转为一个个节点，构成一颗树。
+
+2.节点 Node
+    节点的类型有七种。
+    Document：整个文档树的顶层节点
+    DocumentType：doctype标签（比如<!DOCTYPE html>）
+    Element：网页的各种HTML标签（比如<body>、<a>等）
+    Attr：网页元素的属性（比如class="right"）
+    Text：标签之间或标签包含的文本
+    Comment：注释
+    DocumentFragment：文档的片段
+
+    浏览器提供一个原生的节点对象Node，上面这七种节点都继承了Node，
+    因此具有一些共同的属性和方法
+3.节点树： 
+
+    document节点，代表整个文档。
+
+
+
+
+
+Promise对象(待续)
+
+
+
+
+
+
+
+
+
+
+定时器
+JS提供定时执行代码的功能，叫做定时器(timer)，主要是由 setTimeout() 和 setInterval()这两个函数来完成。
+1. setTimeout()
+    该函数指定某个函数或者某段代码在多少毫秒之后执行，它返回一个整数，表示定时器编号，以后可以用来取消这个定时器
+    var timerId = setTimeout(func|code,delay,arg1,arg2,arg3);
+    参数一为要执行的代码或者函数，
+    参数二为要延迟的时间，
+    其余的为将要传入函数的参数
+    console.log(1);
+    setTimeout('console.log(2)',1000);
+    console.log(3);
+    //1 3 2 
+
+    有一个需要注意的是如果回调函数是对象的方法，那么setTimeout使得方法内部的this关键字指向全局环境。这个时候要避免错误就要把对象固定下来。
+    解决办法之一：将回调函数放入一个匿名函数中。
+    setTimeout(function(){ obj.y},1000);
+    二就是使用bind方法
+    setTimeout(obj.y.bind(obj),1000);
+ 2.setInterval()
+    与setTimeout一致，但是setInterval()在与指定某个任务每隔一段时间就执行一次，无限次的定时间执行。
+
+    setInterval的一个常见用途是实现轮询:
+    var hash = window.location.hash;
+    var hashWatcher = setInterval(function(){
+        if (window.location.hash != hash ){
+            updatePage();
+        }
+    },1000);
+    setInterval 指定的是开始执行之间的间隔，其中并没有考虑到每次任务执行本身所消耗的时间，因此两次执行
+    之间的间隔会小于指定的时间，比如说,setInterval 指定每100ms执行一次，每次执行需要5ms，那么第一次执行结束后的95ms后，第二次执行就会立马开始。又
+    比如说一个任务需要105ms的执行时间，那么下一个任务就会在这个任务结束之后立马开始。
+
+3.clearTimeout(),clearInterval()
+这两个函数就是用来取消定时器的。
+setTimeout 和 setInterval 函数，都会返回一个整数值，将这个整数传入clear函数就可以取消对应的定时器。
+
+
+4. 实例: debounce 函数
+防抖动，防止短时间内用户不停重复某一个操作，导致向服务器发送过多的ajax请求，原理在于设置一个时间间隔，
+如果在这个时间间隔内，用户不触发新的ajax请求，则将请求发送出去，如果触发则刷新时间间隔，直到状态稳定。
+$('textarea').on('keydown',debounce(ajaxAction,2500));
+function debounce(fn,delay){
+    var timer = null; //申明计时器
+    return function(){
+        var context = this;
+        var args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+            fn.apply(context,args);
+        },delay);
+    }
+}
+5. 运行机制
+    其实没有办法保证setTimeout 和 setInterval 指定的任务一定会按照预定时间执行。
+    因为set方法就是将指定的代码移出本轮事件循环，等到下一轮事件循环的时候，再检查是否到了指定时间。
+    那么问题就来了，如果这个set事件之后有一个巨耗时间的任务，那就会导致哪怕时间间隔已经到了，但是set指定事件依然要等到
+    前面的任务完成才能进入主线程。
+6.setTimeout(f,0)
+    6.1含义
+        即使delay被设置为0了，也不会立刻执行这个任务，因为这个任务会被移出本来事件循环，delay为0只能保证这个任务在下一轮事件循环一开始被执行。
+    6.2应用（待续）
+        1.调整事件的发生顺序。
+        2.
+
+
+
+
+1.异步操作的概述：
+JS由于历史原因所以一直采用单线程。但是单线程的坏处就在如果一个任务耗时太长就会阻塞整个程序，
+其实JS的运行速度不慢，慢是因为IO操作，所以JS内部就采取了事件循环机制(Event Loop)：即当一个任务在等待IO操作返回结果时，CPU就会挂起处于等待中的事件，先运行
+下面的任务，等到IO操作出结果了再回头把挂起的任务继续执行。
+2.同步任务和异步任务
+同步任务时指再主线程上排队，没有被挂起的任务。
+异步线程是被引擎放入任务队列的任务，只有在引擎任务这个任务可以被执行，该任务才会进入主线程
+3.任务队列和事件循环
+JS运行时，除了一个正在运行的主线程，还会有一个任务队列(task queue)，里面就是需要当前程序处理的异步任务。
+执行顺序：主线程先执行完所有的同步任务，等到同步任务都执行完了，就去看任务队列中的异步任务。如果条件满足，该任务
+就调入主线程执行该任务，直到清空任务队列。
+异步任务的写法通常是 回调函数，一旦异步任务进入主线程就会执行相应的回调函数。
+4. 异步操作的模式
+4.1 回调函数：
+也就是将一个函数作为参数传给另外一个函数。当一个函数结束会立马驱动另外一个函数。有点简单好理解。缺点代码不好阅读与维护，
+各个部分之间高度耦合。
+4.2事件监听：
+以事件驱动模式。异步任务的执行不取决与代码的顺序，而是取决于某个事件是否发生。
+f1.on('done',f2);
+这句话就是当f1发生 done事件事件，就执行f2
+优点，比较容易理解，可以绑定多个事件，去耦合化，但是整个程序就变成了事件驱动型，运行流程会变得不清晰。
+
+4.3 发布/订阅
+事件被理解成'信号'，如果存在一个信号中心，某个任务完成时就向任务中心发布(pulish)一个信号，其他任务可以向信号中心'订阅'这个信号，从而知道什么时候自己可以开始执行
+这个就是（publish-subscrib pattern） 或者 observer pattern.
+例子
+jQuery.subscrib('done',f2);//f2向jQuery订阅了done这个信号
+function f1(){
+    setTimeout(function(){
+        jQuery.publish('done');
+    },1000);
+}
+f2执行完成之后记得取消订阅 
+jQuery.unsubscrib('done',f2);
+5.异步操作的流程控制:(待续)
+
+
+
+
+严格模式：(待续)
 strict mode
 1.启用方法
 在脚本文件的第一行，整个脚本都将以严格模式运行，如果这行语句不在第一行就无效了，
 可以用在整个脚本，一看只用于单个函数。
 3.显示报错
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Object 对象的相关方法
 1. Object.getPrototypeOf()
