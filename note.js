@@ -53,7 +53,42 @@ return {
             y = 0,
             e(c).html(y),
             k()
-        }), 
+        }),
+浏览器概述
+1.代码嵌入网页的方法
+    1.1 <script> 元素之间嵌入代码
+    1.2 <script> 标签加载外部脚本
+    1.3 事件属性
+        当网页元素的事件属性(比如onlick和onmouseover),可以写入JS代码，当指定事件发生时，就会调用这些代码。
+        <button id="myBtn" onclick="console.log(this.id)">点击</button>
+    1.4 URL 协议  
+2.script元素      
+        
+    
+
+
+事件(待续)
+    EventTarget接口
+Mutation Observer API(待续)
+CSS操作(待续)
+Text节点和DocumentFragment节点(待续)
+属性的操作(待续)     
+Element节点(待续)
+Document节点(待续)
+ParentNode,childNodes接口(待续)
+
+NodeList接口，HTMLCollection接口。
+        能够容纳多个节点的数据结构
+        NodeList包含各种类型的节点，HTMLCollection只能包含HTML元素节点。
+        类似数组，有length属性和forEach方法，但是没有pop，push方法。
+        如果想用数组方法，可以将其转为真正的数组
+        var nodeArr = Array.prototype.slice.call(children);
+        1.NodeList
+        注意NodeList是动态集合，只有Node.childNodes返回的是一个动态集合，其他的NodeList都是静态集合。
+        动态集合是指DOM新增或者删除一个相关节点都会立刻反映在NodeList实例。
+
+        2.HTMLCollection接口。
+        节点对象的集合，只包含元素节点。没有forEach方法，只能for循环。
 Node 接口
 1.属性
 1.1 Node.prototype.nodeType
@@ -89,11 +124,35 @@ Node 接口
         返回当前节点前面的第一个同级节点。
 1.7 Node.prototype.parentNode
         返回父节点。
-
-
-
-
-
+1.8 Node.prototype.firstChild, Node.prototype.lastChild
+        返回当前节点的第一个子节点 或者最后一个子节点。
+        注意 该属性返回的除了元素节点，还可能是文本节点或者注释节点。
+1.9 Node.prototype.childNodes
+        返回一个NodeList集合，成员包括当前节点的所有子节点。
+1.10 Node.prototype.isConnected
+        返回一个boolean值，表示当前节点是否在文档之中。
+2.方法。
+2.1 Node.prototype.appendChild(agr:Node) -> Node:
+        将参数作为最后一个子节点插入当前节点。返回该子节点
+2.2 Node.prototype.hasChildNodes()-> Boolean:
+        表示当前节点是否有子节点。
+2.3 Node.prototype.cloneNode(arg:Boolean)-> Node:
+        返回克隆的节点，arg表示是否克隆子节点。
+        该方法有一些缺点：
+        1.会丢失该节点的回调函数
+        2.返回的节点不在文档中，需要使用Node.appendChild这样的方法添加到文档中
+        3.因为是克隆，所有DOM可能会有两个id和name都一样的网页元素。需要修改其中一个id和name
+2.5 Node.prototype.removeChild(arg:Node)-> Node:
+        删除一个子节点，返回值也是该子节点。
+2.6 Node.prototype.replaceChild(newChild:Node,oldChild:Node)
+        取代一个子节点.
+2.7 Node.prototype.contains(arg:Node):-> Node:
+        检查参数节点是否为当前节点
+        参数节点为当前节点的子节点
+        参数节点为当前节点的后代节点
+2.8 Node.prototype.isEqualNode(arg:Node), Node.prototype.isSameNode(arg:Node) -> Boolean:
+        isEqualNode检查两个节点是否相等，类型，属性，子节点相同
+        isSameNode 表示两个节点是否为同一个节点。
 
 DOM概述
 1.DOM
