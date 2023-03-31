@@ -63,12 +63,124 @@ return {
         <button id="myBtn" onclick="console.log(this.id)">点击</button>
     1.4 URL 协议  
 2.script元素      
-        
-    
 
 
-事件(待续)
-    EventTarget接口
+
+Event对象
+在Js中，事件发生之后，会产生一个事件对象，作为参数传给监听函数。浏览器元素提供一个event对象，所有的事件都是这个对象的实例
+Event对象本身就是一个构造函数
+event = new Event(type,options);
+2. 实例属性:
+2.1Event.bubbles,Event.eventPhase
+        bubbles-> Boolean:检查该事件是否会冒泡，只读属性，除非显示声明，否则Event构造函数生成的事件，默认是不冒泡的
+        eventPhase-> int: 表示事件目前所处的阶段，只读属性。只有四个返回值
+        0：事件没有发生，
+        1：事件目前处于捕获阶段，
+        2：事件到底目标阶段，Event.target属性指向的那个节点
+        3：事件处于冒泡阶段，
+2.2 Event.cancelable, cancelBubble,defaultPrevented
+        cancelabe->Boolean:返回一个boolean值,b表示事件是否可以取消，只读。
+        当Event.cancelable属性为true时，调用Event.preventDefault()就可以取消这个事件，阻止浏览器对该事件的默认行为。
+        如果事件不能取消，调用Event.preventDefault()会没有任何效果。所以使用这个方法之前，最好用Event.cancelable属性判断一下是否可以取消
+        event.defaultPrevented-> Boolean: 表示事件是否调用过Event.preventDefault()
+2.3 Event.currentTarget,target:
+        任意事件都有两个与事件相关的节点，一个是事件的原始触发节点(Event.target),另一个是事件当前正在通过的节点(Event.currentTarget).
+2.4 Event.type
+        该属性返回一个字符串，表示事件类型。事件类型是在生成事件的时候指定的。
+2.5 Event.timeStamp:
+        返回一个毫秒时间戳，表示事件发生的时间，它是相对于网页加载成功开始计算的
+
+3.实例方法
+3.1 Event.preventDefault()
+        取消浏览器对当前时间的默认行为，比如说点击链接之后，浏览器默认是跳转到另外一个页面
+        使用这个方法之后，就不会跳转了。但是有个前提是时间对象的cancelable属性为true，如果为false，调用该方法没有任何效果。
+        有一点需要注意的是，该方法不会组长事件的传播，如果要阻止传播，需要使用stopPropagation() 或者 stopImmediatePropagation()
+3.2 Event.stopPropagation()
+        阻止事件在DOM中继续传播，防止再触发定义带别的节点上的监听函数。但是不包括当前节点上其他的事件监听函数
+3.3 Event.stopImmediatePropagation()
+        阻止同一个事件的其他监听函数被调用，不管监听函数定义在当前节点还是其他节点，也就是说，该方法阻止事件的传播，比stopPropagation()更彻底。
+        比如说 同一个节点的同一个事件还有其他监听函数，这些函数是根据添加的顺序依次调用的。只要有一个监听函数调用了该方法，其他的监听函数就不会再执行了。
+
+3.4 Event.comprosedPath()-> list:
+        成员是事件的最底层节点喝依次冒泡经过的所有上层节点。
+
+
+鼠标事件
+1.点击事件
+        1.1 click: 点击鼠标触发
+        1.2 dbclick:双击时触发
+        1.3 mousedown:按下鼠标时触发
+        1.4 mouseup: 释放按下的鼠标键时触发。
+        触发顺序为 1.3 1.4 1.1 1.2
+2.移动事件:
+        1.1 mousemove: 当鼠标在一个节点内部移动时触发
+        1.2 mouseenter: 当鼠标进入一个节点时触发，进入子节点不会触发这个事件
+        1.3 mouseover: 鼠标进入一个节点时触发，进入子节点会再触发依次
+        1.4 mouseout:  鼠标立刻一个节点时触发，立刻父节点也会触发这个事件。
+        1.5 mouseleave: 鼠标离开一个节点时触发，立刻父节点不会触发 。
+3. MouseEvent接口：
+该接口涉及到鼠标相关的事件，点击，双击，松开鼠标，按下鼠标，滚轮，拖拉都是MouseEvent的实例 事件对象。
+MouseEvent接口继承了Event接口，所以用于Event的所有属性和方法，并且还提供鼠标独有的属性和方法。
+
+
+
+
+
+
+事件模型
+1. 监听函数。
+浏览器的事件模型：通过监听函数对事件做出反应。 也就是事件发生后，浏览器监听到了这个事件，就会执行对应的监听函数。
+这就是事件驱动编程模式(event-driven)的主要编程方式。
+1.1 HTML的on- 属性：
+直接在HTML元素的属性中，定义某些事件的监听代码
+#<div onclick='console.log('触发事件')'>
+只在冒泡阶段触发。
+1.2 元素节点的事件属性：
+div.onclick = function(event){
+    console.log('')
+}
+1.3 EventTarget.addEventListener()(推荐使用)
+所有DOM节点实例都要addEventListener方法，用来为该节点定义事件的监听函数。
+
+2. this的指向：
+监听函数的内部的this指向触发事件的那个元素节点。
+3. 事件的传播
+一个事件发生后，会在子元素和父元素直接传播。分为三个阶段
+    第一阶段： 捕获阶段，从window对象传到目标阶段。(capture phase)
+    第二阶段： 在目标节点上触发，称为‘目标阶段’(target phase)
+    第三阶段： 从目标节点传导回window对象(从底层传回到上层)，称为‘冒泡阶段’(bubbing phase)
+这种三阶段的传播模型，使得同一个事件会在多个节点上触发。
+4. 事件的代理
+因为事件回在冒泡阶段向上传递，使用子节点的监听函数可以定义在父节点上，由父节点的监听函数同意处理多个子元素的事件
+这个就是事件的代理(delegation).$appendComponent
+
+
+事件
+事件的本质是程序各个组成部分之间的一种通信方式。
+EventTarget接口
+DOM节点监听事件。
+DOM节点的监听和触发都定义在EventTarget接口。 所有的节点对象和一些浏览器内置对象（XMLHttpRequest,AudioNode,AudioContext）
+都部署了这个接口。
+该接口主要提供了三个实例方法。
+addEventListener(): 绑定 事件的监听函数。
+removeEventListener():移除 事件的监听函数。
+dispatchEvent(): 触发事件。
+2. EventTarget.addEventListener()
+
+t.addEventListener(type,listener[,useCapture]);
+type:事件名称，大小写敏感。
+listener:监听函数。事件发生时，调用该监听函数。
+useCapture:Boolean,监听函数是否在捕获阶段触发。
+
+3.EventTarget.removeEventListener()
+移除addEventListener()方法添加的事件监听函数。
+参数和addEventListener()是一样的，该方法移除的监听函数，add方法添加的那个监听函数，
+而且必须在同一个元素节点。参数都要一样才可以。
+
+4. EventTarget.dispatchEvent()
+
+
+
 Mutation Observer API(待续)
 CSS操作(待续)
 Text节点和DocumentFragment节点(待续)
