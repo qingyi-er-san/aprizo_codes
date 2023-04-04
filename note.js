@@ -63,6 +63,38 @@ return {
         <button id="myBtn" onclick="console.log(this.id)">点击</button>
     1.4 URL 协议  
 2.script元素      
+2.1工作原理
+    浏览器加载JS脚本，主要通过<script>元素完成。正常的网页加载流程是这样的：
+    1.浏览器一步下载HTML网页，一边开始解析。也就是说，不等到下载完，就开始解析。
+    2.遇到<script>元素，停止解析，把网页渲染的控制权交给JS引擎。
+    3. 如果<script>元素引用了外部脚本。就会先下载脚本再执行。
+    4.JS引擎执行完，控制权还个渲染引擎，恢复往下解析HTML网页。
+    为什么会把控制权交给JS引擎?因为JS代码是可以修改DOM，所以必须把控制权交给它。
+    那么就会有一个问题了，如果外部JS代码加载时间很长，那么浏览器就会一直等待脚本下载完成，造成网页长时间
+    失去响应，浏览器就会呈现‘假死’状态。这就是‘阻塞效应’。
+    为了避免这种情况，较好的做法是将<script>标签放在页面底部。这样哪怕是外部脚本无法下载，但是网站的主体已经有了
+2.2 Defer属性
+        为了解决脚本文件下载阻塞网页渲染的问题，一个方法是对<script>元素加入defer属性。它的作用是延迟脚本的执行，等到DOM加载生成后，再执行脚本。
+        <script src='a.js' defer></script>
+        此时的运行顺序就是 
+        1.浏览器解析HTML网页
+        2.发现defer属性的<script>元素。
+        3.浏览器继续往下解析网页，并同时下载<script>元素的外部脚本。
+        4.浏览器完成解析HTML网页，此时再执行已经下载完成的脚本。
+    而且js脚本的执行顺序是就是出现在HTML中的顺序。
+    对于内置的JS代码的<script>标签，以及动态生成script标签，defer属性不起作用。
+2.3 async 属性
+        解决 ‘阻塞效应’的另一方法是对<script>元素加入async属性
+        <script src="a.js" async> </script>
+        使用另一个进程下载脚本，下载是不会阻塞渲染。
+        1.浏览器开始解析HTML网页
+        2.发生有async属性的script
+        3.浏览器继续往下解析HTML网页，同时并行下载<script>标签中的外部脚本
+        4.脚本下载完成，浏览器暂停解析HTML网页，开始执行下载的脚本
+        5.脚本执行完毕，浏览器恢复解析HTML网页。
+        这个属性就可以保证脚本
+
+
 
 
 
@@ -121,7 +153,75 @@ event = new Event(type,options);
 3. MouseEvent接口：
 该接口涉及到鼠标相关的事件，点击，双击，松开鼠标，按下鼠标，滚轮，拖拉都是MouseEvent的实例 事件对象。
 MouseEvent接口继承了Event接口，所以用于Event的所有属性和方法，并且还提供鼠标独有的属性和方法。
+原生构造函数 MouseEvent()，用于新建一个MouseEvent实例。
+var event = new MouseEvent(type,options);
+4. MouseEvent接口的实例属性
+4.1 MouseEvent.altKey,MouseEvent.ctrlKey,MouseEvent.metaKey,MouseEvent.shiftKey:
+        四个属性都返回一个boolean值，表示当事件发生时，是否按下对应的键。只读属性。
+        metaKey是 window键
+4.2 MouseEvent.button, MouseEvent.buttons
+        button
+        返回一个数值，表示事件发生时按下了鼠标的哪个按键，该属性只读。
+        0：按下主键，（通常是左键），或者该事件没有初始化这个属性。
+        1：按下辅助键（通常是中键或者滚轮键）
+        2：按下次键（通常是右键）
+        buttons
+        返回一个三个比特位的值，表示同时按下了那些键。它用来处理同时按下多喝鼠标键的情况。该属性只读。
+        001：按下左键。
+        010：按下右键
+        100：中键或者滚轮键
+        对应的位置有值那就是按下了相应的值，比如111，那就是三键一起按了。
+4.3 MouseEvent.clientX, MouseEvent.clientY
+        返回鼠标相对于浏览器窗口左上角的水平坐标
+5. MouseEvent 接口的实例方法：
+        方法返回一个Boolean值，表示有没有按下特定的功能键。它的参数是一个表示功能键的字符串。
+6. WheelEvent接口接口：
+        继承了MouseEvent实例，代表鼠标滚轮事件的实例对象。
+        var wheelEvent = new WheelEvent(type,options);
+        type：string，表示事件类型，对应滚轮事件来说，这个值就只能是wheel。
+        该方法没有实例方法，只要实例属性。且都是只读。
 
+键盘事件
+1. 键盘事件的种类
+由用户敲键盘触发，主要由keydown,keypress,keyup三个事件。继承了KeyboardEvent接口。
+keydown:按下键盘时触发
+keypress: 按下有值的键时触发，ctrl，alt等不会触发。
+keyup: 松开键盘时触发该事件。
+如果用户一直按键不松口，就会连续触发键盘事件，触发的顺序如下：
+        1.keydown
+        2.keypress
+        3.keydown
+        4.keypress
+        .
+        .
+        -1.keyup
+2.KeyboardEvent接口的描述
+KeyboardEvent接口用来描述用户与键盘的互动。这个接口继承了Event接口，并且定义了自己的实例属性和实例方法。
+KeyboardEvent构造函数。
+var key = KeyboardEvent(type,options)
+3.KeyboardEvent的实例属性
+3.1 KeyboardEvent.altKey, KeyboardEvent.ctrlKey,KeyboardEvent.metaKey, KeyboardEvent.shiftKey
+返回一个boolean值,表示是否按下对应的键。
+3.2 KeyboardEvent.code
+返回一个字符串，表示当前按下的键的字符串形式，只读。
+3.3 KeyboardEvent.key 
+返回一个字符串，表示按下的键名。
+3.4 KeyboardEvent.location
+返回一个整数，表示按下的键处在键盘的哪一个区域。
+3.5 KeyboardEvent.repeat
+返回一个boolean，代表该键是否被按着不放。
+4.KeyboardEvent的实例方法
+4.1 getModifierState()
+进度事件
+1. 进度事件的种类
+资源加载的进度，主要由Ajax，img，audio，video等外部资源的加载触发，继承了ProgressEvent接口。
+2. ProgressEvent 接口
+构造函数 ProgressEvent(type,options)
+
+表单事件（未理解未完）
+1.表单事件的种类
+1.1 input事件
+触发事件（未完待续）
 
 
 
