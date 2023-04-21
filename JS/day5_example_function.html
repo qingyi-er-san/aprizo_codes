@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        table,td,th{
+            border: 1px solid black;
+        }
+        td{
+            padding: 5px 30px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        temp_client =  +prompt('Please input your time in second:')
+        let sTot = function(x){
+            let hour = parseInt(((x /60)/60)%24);
+            let minute = (x/60) % 60 ;
+            let second = x%60;
+            return [hour,minute,second];
+        };
+        let time = sTot(temp_client)
+        // function secondeToTime(x){
+        //     let hour = parseInt(((x /60)/60)%24);
+        //     let minute = (x/60) % 60 ;
+        //     let second = x % 60;
+        //     return [hour,minute,second];
+        // } 
+        // time = secondeToTime(temp_client)
+
+        document.write(`the time that you input is ${temp_client}; I have already transforme in h/m/s , the result is 
+        ${time[0]}h/${time[1]}m/${time[2]}s`)
+
+        
+    </script>
+    <table>
+        <tr>
+            <th>hour</th>
+            <th>minute</th>
+            <th>second</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+</body>
+</html>
